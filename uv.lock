@@ -91,8 +91,8 @@ wheels = [
 
 [[package]]
 name = "common-py"
-version = "0.1.0"
-source = { virtual = "." }
+version = "0.2.0"
+source = { editable = "." }
 dependencies = [
     { name = "defusedxml" },
 ]
@@ -111,6 +111,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [{ name = "defusedxml", specifier = ">=0.7.1" }]
+provides-extras = ["logger"]
 
 [package.metadata.requires-dev]
 dev = [
