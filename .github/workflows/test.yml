@@ -1,0 +1,44 @@
+name: Run CI via uv
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4        
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.PAT }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          version: ">=0.8.6"
+      - name: Install dependencies
+        run: | 
+          uv python install 3.11
+          uv sync --all-extras --dev
+      - name: Run tests & update project badges
+        run: |
+          git config --global user.email "scott-horban@users.noreply.github.com"
+          git config --global user.name "scott-horban"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          source .venv/bin/activate
+          uv run task tests
+          if git status | grep -q modified; then
+            echo "Committing updated project badges to ${CURRENT_BRANCH}"
+            git add docs/img/
+            git commit -m "chore: refresh project badges [skip ci]"
+            git push
+            echo "Changes committed to ${CURRENT_BRANCH} successfully! Exiting."
+          else
+            echo "No updates required to project badges! Exiting pipeline successfully."
+          fi
