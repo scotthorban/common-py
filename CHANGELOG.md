@@ -5,4 +5,4 @@ This format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 This project adheres to [semantic versioning](https://semver.org/).
 
 ## 0.1.0
-- 
+- Remove remnants from python project template repository.
