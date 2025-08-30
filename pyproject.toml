@@ -1,6 +1,6 @@
 [project]
 name = "common-py"
-version = "0.1.0"
+version = "0.2.0"
 description = "A library of common, generic python modules designed to be used in other projects."
 authors = [
     {name="scotthorban", email="scotthorban@gmail.com"}
