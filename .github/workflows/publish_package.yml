@@ -33,7 +33,7 @@ jobs:
         run: uv build
       - name: Publish to GitHub Packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
         run: |
           # Ensure dist/ exists
           if [ ! -d "dist" ]; then
@@ -46,5 +46,5 @@ jobs:
           # Upload all distributions to GitHub Packages
           uv run python -m twine upload \
             --repository-url $GITHUB_PYPI_URL \
-            -u __token__ -p $GITHUB_TOKEN \
+            -u __token__ -p $PUBLISH_TOKEN \
             dist/*
