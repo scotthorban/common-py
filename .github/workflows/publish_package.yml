@@ -29,6 +29,7 @@ jobs:
         run: |
           uv python install 3.11
           uv sync --all-extras --dev
+          uv pip install twine
       - name: Build package
         run: uv build
       - name: Publish to GitHub Packages
