@@ -11,6 +11,16 @@ dependencies = [
     "defusedxml>=0.7.1",
 ]
 
+[project.optional-dependencies]
+logger = []
+
+[tool.setuptools.packages.find]
+where = ["common_py"]
+
+[build-system]
+requires = ["setuptools>=70.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [dependency-groups]
 dev = [
     "anybadge>=1.16.0",
