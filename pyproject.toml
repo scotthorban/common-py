@@ -1,0 +1,70 @@
+[project]
+name = "python-project-template"
+version = "2.2.1"
+description = "Python project template repository"
+authors = [
+    {name="scotthorban", email="161889944+scotthorban@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11.8"
+dependencies = [
+    "defusedxml>=0.7.1",
+]
+
+[dependency-groups]
+dev = [
+    "anybadge>=1.16.0",
+    "detect-secrets>=1.5.0",
+    "pre-commit>=4.2.0",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.8",
+    "taskipy>=1.14.1",
+    "typing-extensions>=4.14.1",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "ALL"
+]
+ignore = [
+    "COM812", # flake8 commas: Trailing comma missing (incompatible with ruff formatter)
+    "D100", # pydocstyle: Missing docstring in public module
+    "D104", # pydocstyle: Missing docstring in public package
+]
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"] # flake8 bandit: Use of assert detected (disabling allows asserts in tests)
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+combine-as-imports = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+docstring-code-format = true
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.taskipy.tasks]
+install-hooks = { cmd = "pre-commit install --hook-type pre-commit --hook-type commit-msg", help = "Install all pre-commit hooks stored in .git-hooks" }
+
+detect-secrets-scan = { cmd = "detect-secrets scan --baseline .secrets.baseline.json", help = """Updates the .secrets.baseline.json file with any newly detected secrets"""}
+audit-secrets = { cmd = "detect-secrets audit .secrets.baseline.json", help = """Runs a command line tool to allow the user to manually flag detected secrets as false positives"""}
+
+unit = { cmd = "pytest -v tests/unit tests/functional --show-capture=no --disable-pytest-warnings --junitxml=reports/unit-tests.xml", help = "Run unit tests"}
+coverage = { cmd = "pytest --cov src tests/unit tests/functional --cov-config=.coveragerc --cov-report term-missing --cov-fail-under=80 --cov-report xml:reports/coverage.xml", help = "Run unit test coverage" }
+check-lint = { cmd = "ruff check; ruff check --output-file reports/ruff.json --output-format json", help = "Run ruff linter" }
+lint = { cmd = "ruff check --fix", help = "Run ruff linter and attempt to auto-fix issues" }
+check-format = { cmd = "ruff format --diff", help = "View ruff formatting diff" }
+format = { cmd = "ruff format", help = "Format code using ruff" }
+badge = { cmd = "python generate_project_badges.py", help = "Generate project badges for README.md" }
+
+tests = { cmd = "task unit && task coverage && task check-lint && task check-format && task badge", help = "Run unit, coverage, check-lint, check-format and badge tasks in a single command" }

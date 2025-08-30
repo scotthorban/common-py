@@ -1,0 +1,10 @@
+[run]
+omit =
+    */__init__.py
+    tests/*
+    definitions.py
+
+[report]
+exclude_lines =
+    if __name__ == .__main__.:
+    if __name__==.__main__.:
