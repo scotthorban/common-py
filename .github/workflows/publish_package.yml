@@ -1,0 +1,47 @@
+name: Build and Publish Python Package
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [ "Run CI via uv" ]
+    types:
+      - completed
+
+jobs:
+  build-and-publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.PAT }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          version: ">=0.8.6"
+      - name: Install dependencies
+        run: |
+          uv python install 3.11
+          uv sync --all-extras --dev
+      - name: Build package
+        run: uv build
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Ensure dist/ exists
+          if [ ! -d "dist" ]; then
+            echo "No build artifacts found. Exiting."
+            exit 1
+          fi
+
+          GITHUB_PYPI_URL="https://upload.pypi.github.com/scotthorban/common-py"
+
+          # Upload all distributions to GitHub Packages
+          twine upload \
+            --repository-url $GITHUB_PYPI_URL \
+            -u __token__ -p $GITHUB_TOKEN \
+            dist/*

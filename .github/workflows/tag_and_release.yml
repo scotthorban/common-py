@@ -2,7 +2,7 @@ name: Generate Git Tag and GitHub Release
 
 on:
   workflow_run:
-    workflows: [ "Run CI via uv" ]
+    workflows: [ "Build and Publish Python Package" ]
     types:
       - completed
   workflow_dispatch:
