@@ -41,7 +41,7 @@ jobs:
             exit 1
           fi
 
-          GITHUB_PYPI_URL="https://upload.pypi.github.com/scotthorban/common-py"
+          GITHUB_PYPI_URL="https://api.github.com/orgs/${{ github.repository_owner }}/packages/pypi/upload"
 
           # Upload all distributions to GitHub Packages
           uv run python -m twine upload \
