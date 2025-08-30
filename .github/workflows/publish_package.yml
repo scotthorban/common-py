@@ -29,7 +29,6 @@ jobs:
         run: |
           uv python install 3.11
           uv sync --all-extras --dev
-          uv pip install twine
       - name: Build package
         run: uv build
       - name: Publish to GitHub Packages
@@ -45,7 +44,7 @@ jobs:
           GITHUB_PYPI_URL="https://upload.pypi.github.com/scotthorban/common-py"
 
           # Upload all distributions to GitHub Packages
-          twine upload \
+          uv run python -m twine upload \
             --repository-url $GITHUB_PYPI_URL \
             -u __token__ -p $GITHUB_TOKEN \
             dist/*
