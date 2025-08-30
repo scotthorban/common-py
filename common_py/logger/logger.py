@@ -31,8 +31,7 @@ def get_logger(
         err_msg = f"get_logger() received an invalid logging level of {level}, must be one of {VALID_LEVELS}"
         raise ValueError(err_msg)
 
-    if formatter is None:
-        formatter = logging.Formatter()
+    formatter = formatter or logging.Formatter()
 
     logger = logging.getLogger(name=name) if name else logging.getLogger()
     logger.setLevel(level=level)
