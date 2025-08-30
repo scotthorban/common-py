@@ -10,8 +10,6 @@ repos:
     hooks:
       - id: check-yaml
         exclude: .*/tests/.*
-  #      - id: trailing-whitespace
-  #        exclude: (.*/tests/.*)|(*.md)
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
@@ -21,10 +19,8 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.8
     hooks:
-      # Run the linter
       - id: ruff
         types_or: [ python, pyi ]
         args: [ --fix ]
-      # Run the formatter
       - id: ruff-format
         types_or: [ python, pyi ]
