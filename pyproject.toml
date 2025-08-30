@@ -1,7 +1,7 @@
 [project]
-name = "python-project-template"
-version = "2.2.1"
-description = "Python project template repository"
+name = "common-py"
+version = "0.1.0"
+description = "A library of common, generic python modules designed to be used in other projects."
 authors = [
     {name="scotthorban", email="scotthorban@gmail.com"}
 ]
@@ -59,8 +59,8 @@ install-hooks = { cmd = "pre-commit install --hook-type pre-commit --hook-type c
 detect-secrets-scan = { cmd = "detect-secrets scan --baseline .secrets.baseline.json", help = """Updates the .secrets.baseline.json file with any newly detected secrets"""}
 audit-secrets = { cmd = "detect-secrets audit .secrets.baseline.json", help = """Runs a command line tool to allow the user to manually flag detected secrets as false positives"""}
 
-unit = { cmd = "pytest -v tests/unit tests/functional --show-capture=no --disable-pytest-warnings --junitxml=reports/unit-tests.xml", help = "Run unit tests"}
-coverage = { cmd = "pytest --cov src tests/unit tests/functional --cov-config=.coveragerc --cov-report term-missing --cov-fail-under=80 --cov-report xml:reports/coverage.xml", help = "Run unit test coverage" }
+unit = { cmd = "pytest -v tests/unit --show-capture=no --disable-pytest-warnings --junitxml=reports/unit-tests.xml", help = "Run unit tests"}
+coverage = { cmd = "pytest --cov src tests/unit --cov-config=.coveragerc --cov-report term-missing --cov-fail-under=80 --cov-report xml:reports/coverage.xml", help = "Run unit test coverage" }
 check-lint = { cmd = "ruff check; ruff check --output-file reports/ruff.json --output-format json", help = "Run ruff linter" }
 lint = { cmd = "ruff check --fix", help = "Run ruff linter and attempt to auto-fix issues" }
 check-format = { cmd = "ruff format --diff", help = "View ruff formatting diff" }
