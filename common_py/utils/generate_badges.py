@@ -1,15 +1,18 @@
 """A module to generate project badges designed for use in a README.md file."""
 
 import argparse
-import subprocess
 from pathlib import Path
 
+from anybadge import Badge, colors
 from defusedxml import ElementTree
 
-RED = "#be403c"
-YELLOW = "#c8991d"
-GREEN = "#00a10b"
-BLUE = "#0f5fa5"
+COVERAGE_THRESHOLDS = {
+    50: colors.Color.RED.value,
+    60: colors.Color.ORANGE.value,
+    75: colors.Color.YELLOW.value,
+    90: colors.Color.GREEN.value,
+    100: colors.Color.LIGHTGREEN.value,
+}
 
 
 class BadgeGenerator:
@@ -38,7 +41,7 @@ class BadgeGenerator:
     def generate_badges(self) -> None:
         """Generate project badges based on arguments provided to the class."""
         if self.python_version:
-            self.make_badge(label="python", value=self.python_version, filename="python.svg", colour=BLUE)
+            self.make_badge(label="python", value=self.python_version, filename="python.svg", colour=colors.Color.BLUE)
 
         if self.tests_report_path:
             results = self.get_unittest_results()
@@ -46,9 +49,9 @@ class BadgeGenerator:
 
         if self.coverage_report_path:
             results = self.get_coverage_results()
-            self.make_badge(label="coverage", value=results, filename="coverage.svg")
+            self.make_coverage_badge(label="coverage", value=results, filename="coverage.svg")
 
-    def make_badge(self, label: str, value: str, filename: str, colour: str | None = None) -> None:
+    def make_badge(self, label: str, value: str, filename: str, colour: colors.Color) -> None:
         """Creates a badge using the given label, value and colour, saving the result to filename.
 
         Existing badges will be removed before the new badge is generated.
@@ -59,27 +62,21 @@ class BadgeGenerator:
             colour (str | None): Optional colour of the badge.
                 Anybadge will infer the colour if omitted and the value is an integer between 0 and 100.
         """
-        img_path = self.output_path.joinpath(filename)
-        img_path.unlink(missing_ok=True)
+        badge = Badge(label=label, value=str(value), default_color=colour.value)
+        badge.write_badge(str(self.output_path.joinpath(filename)), overwrite=True)
 
-        args = [
-            "uv",
-            "run",
-            "anybadge",
-            "-l",
-            label,
-            "-v",
-            str(value),
-            "-f",
-            str(img_path),
-        ]
+    def make_coverage_badge(self, label: str, value: float, filename: str) -> None:
+        """Creates a badge using the given label and value, saving the result to filename.
 
-        if colour:
-            args.extend(["--color", colour])
+        Parameters:
+            label (str): The label of the badge.
+            value (float): The float coverage score.
+            filename (str): The filename where the badge will be saved.
+        """
+        badge = Badge(label=label, value=value, value_suffix="%", thresholds=COVERAGE_THRESHOLDS)
+        badge.write_badge(str(self.output_path.joinpath(filename)), overwrite=True)
 
-        subprocess.run(args=args, check=False)
-
-    def get_unittest_results(self) -> tuple[str, str]:
+    def get_unittest_results(self) -> tuple[str, colors.Color]:
         """Read and return test results from a unit-tests.xml file.
 
         Returns a tuple of the test results and the colour of the badge.
@@ -95,21 +92,21 @@ class BadgeGenerator:
             tests = int(type_tag.get("tests"))
 
         result_mapping = {
-            failures > 0: (f"{failures} skipped {tests - failures} passed", RED),
-            skipped > 0: (f"{skipped} skipped {tests - skipped} passed", YELLOW),
-            failures == 0 and skipped == 0: (f"{tests} passed", GREEN),
+            failures > 0: (f"{failures} skipped {tests - failures} passed", colors.Color.RED),
+            skipped > 0: (f"{skipped} skipped {tests - skipped} passed", colors.Color.YELLOW),
+            failures == 0 and skipped == 0: (f"{tests} passed", colors.Color.GREEN),
         }
 
         return result_mapping.get(True)
 
-    def get_coverage_results(self) -> str:
+    def get_coverage_results(self) -> float:
         """Read and return coverage from a unit-tests.xml file."""
         root = ElementTree.parse(source=self.coverage_report_path).getroot()
         coverage_score = root.attrib["line-rate"]
         if coverage_score == "1":
-            return "100%"
+            return 100
 
-        return f"{round(100.0 * float(coverage_score), 1)}%"
+        return round(100.0 * float(coverage_score), 1)
 
 
 def main() -> None:
