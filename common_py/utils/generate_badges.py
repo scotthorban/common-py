@@ -2,6 +2,7 @@
 
 import argparse
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 from anybadge import Badge, colors
@@ -29,14 +30,17 @@ class BadgeGenerator:
     def __init__(
         self,
         output_path: Path,
+        *,
         python_version: str | None,
-        tests_report_path: Path,
-        coverage_report_path: Path,
-        ruff_report_path: Path,
+        tests_report_path: Path | None,
+        coverage_report_path: Path | None,
+        ruff_report_path: Path | None,
+        generate_release_badge: bool,
     ) -> None:
         """Initializes a BadgeGenerator instance."""
         self.output_path = output_path
         self.python_version = python_version
+        self.generate_release_badge = generate_release_badge
         self.tests_report_path = tests_report_path
         self.coverage_report_path = coverage_report_path
         self.ruff_report_path = ruff_report_path
@@ -44,7 +48,9 @@ class BadgeGenerator:
     def generate_badges(self) -> None:
         """Generate project badges based on arguments provided to the class."""
         if self.python_version:
-            self.make_badge(label="python", value=self.python_version, filename="python.svg", colour=colors.Color.BLUE)
+            self.make_badge(
+                label="python", value=self.python_version, filename="python.svg", colour=colors.Color.STEELBLUE
+            )
 
         if self.tests_report_path:
             results = self.get_unittest_results()
@@ -57,6 +63,13 @@ class BadgeGenerator:
         if self.ruff_report_path:
             results = self.get_ruff_results()
             self.make_badge(label="ruff", value=results[0], filename="ruff.svg", colour=results[1])
+
+        if self.generate_release_badge:
+            today = datetime.now(tz=UTC).date()
+            formatted_date = today.strftime("%Y-%m-%d")
+            self.make_badge(
+                label="release", value=formatted_date, filename="release.svg", colour=colors.Color.STEELBLUE
+            )
 
     def make_badge(self, label: str, value: str, filename: str, colour: colors.Color) -> None:
         """Creates a badge using the given label, value and colour, saving the result to filename.
@@ -132,6 +145,13 @@ def main() -> None:
     parser.add_argument("-o", "--output-dir", type=str, default="docs/img", help="Output directory for project badges")
     parser.add_argument("-pv", "--python-version", type=str, help="Supported python versions")
     parser.add_argument(
+        "-rb",
+        "--release-badge",
+        type=bool,
+        default=True,
+        help="Set to true to generate a release badge in YYYY-MM-DD format",
+    )
+    parser.add_argument(
         "-trp",
         "--tests-report-path",
         type=str,
@@ -157,6 +177,7 @@ def main() -> None:
     badge_generator = BadgeGenerator(
         output_path=Path(args.output_dir),
         python_version=args.python_version,
+        generate_release_badge=args.release_badge,
         tests_report_path=Path(args.tests_report_path),
         coverage_report_path=Path(args.coverage_report_path),
         ruff_report_path=Path(args.ruff_report_path),

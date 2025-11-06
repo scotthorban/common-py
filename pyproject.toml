@@ -46,6 +46,7 @@ ignore = [
     "COM812", # flake8 commas: Trailing comma missing (incompatible with ruff formatter)
     "D100", # pydocstyle: Missing docstring in public module
     "D104", # pydocstyle: Missing docstring in public package
+    "PLR0913", # pylint refactor: Too many arguments in function definition
 ]
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
@@ -81,6 +82,6 @@ check-lint = { cmd = "ruff check; ruff check --output-file reports/ruff.json --o
 lint = { cmd = "ruff check --fix", help = "Run ruff linter and attempt to auto-fix issues" }
 check-format = { cmd = "ruff format --diff", help = "View ruff formatting diff" }
 format = { cmd = "ruff format", help = "Format code using ruff" }
-badge = { cmd = "python generate_project_badges.py", help = "Generate project badges for README.md" }
+badge = { cmd = "python common_py/utils/generate_badges.py -pv 3.11 -trp reports/unit-tests.xml -crp reports/coverage.xml -rrp reports/ruff.json", help = "Generate project badges for README.md" }
 
 tests = { cmd = "task unit && task coverage && task check-lint && task check-format && task badge", help = "Run unit, coverage, check-lint, check-format and badge tasks in a single command" }
