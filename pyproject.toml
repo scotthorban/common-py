@@ -7,13 +7,11 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.11,<4"
-dependencies = [
-    "defusedxml>=0.7.1",
-]
+dependencies = []
 
 [project.optional-dependencies]
 logger = []
-utils = ["anybadge>=1.16.0"]
+utils = ["anybadge>=1.16.0", "defusedxml>=0.7.1"]
 
 [project.scripts]
 generate-badges = "common_py.utils.generate_badges:main"

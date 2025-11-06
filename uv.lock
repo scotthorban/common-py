@@ -93,13 +93,11 @@ wheels = [
 name = "common-py"
 version = "0.2.1"
 source = { editable = "." }
-dependencies = [
-    { name = "defusedxml" },
-]
 
 [package.optional-dependencies]
 utils = [
     { name = "anybadge" },
+    { name = "defusedxml" },
 ]
 
 [package.dev-dependencies]
@@ -116,7 +114,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anybadge", marker = "extra == 'utils'", specifier = ">=1.16.0" },
-    { name = "defusedxml", specifier = ">=0.7.1" },
+    { name = "defusedxml", marker = "extra == 'utils'", specifier = ">=0.7.1" },
 ]
 provides-extras = ["logger", "utils"]
 
