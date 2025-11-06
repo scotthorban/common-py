@@ -1,6 +1,7 @@
 """A module to generate project badges designed for use in a README.md file."""
 
 import argparse
+import json
 from pathlib import Path
 
 from anybadge import Badge, colors
@@ -27,16 +28,18 @@ class BadgeGenerator:
 
     def __init__(
         self,
-        output_dir: str | Path,
+        output_path: Path,
         python_version: str | None,
-        tests_report_path: str | Path,
-        coverage_report_path: str | Path,
+        tests_report_path: Path,
+        coverage_report_path: Path,
+        ruff_report_path: Path,
     ) -> None:
         """Initializes a BadgeGenerator instance."""
-        self.output_path = Path(output_dir)
+        self.output_path = output_path
         self.python_version = python_version
-        self.tests_report_path = Path(tests_report_path)
-        self.coverage_report_path = Path(coverage_report_path)
+        self.tests_report_path = tests_report_path
+        self.coverage_report_path = coverage_report_path
+        self.ruff_report_path = ruff_report_path
 
     def generate_badges(self) -> None:
         """Generate project badges based on arguments provided to the class."""
@@ -50,6 +53,10 @@ class BadgeGenerator:
         if self.coverage_report_path:
             results = self.get_coverage_results()
             self.make_coverage_badge(label="coverage", value=results, filename="coverage.svg")
+
+        if self.ruff_report_path:
+            results = self.get_ruff_results()
+            self.make_badge(label="ruff", value=results[0], filename="ruff.svg", colour=results[1])
 
     def make_badge(self, label: str, value: str, filename: str, colour: colors.Color) -> None:
         """Creates a badge using the given label, value and colour, saving the result to filename.
@@ -108,6 +115,16 @@ class BadgeGenerator:
 
         return round(100.0 * float(coverage_score), 1)
 
+    def get_ruff_results(self) -> tuple[str, colors.Color]:
+        """Read and return Ruff result from PROJECT_ROOT_DIR/reports/linting.txt."""
+        with Path.open(self.ruff_report_path) as linting_file:
+            content = json.load(fp=linting_file)
+
+        if not content:
+            return "Passing", colors.Color.GREEN
+
+        return "Failing", colors.Color.RED
+
 
 def main() -> None:
     """Main function for badge generation."""
@@ -128,13 +145,21 @@ def main() -> None:
         default="reports/coverage.xml",
         help="Path to the unit test coverage XML report",
     )
+    parser.add_argument(
+        "-rrp",
+        "--ruff-report-path",
+        type=str,
+        default="reports/ruff.json",
+        help="Path to the ruff JSON report",
+    )
     args = parser.parse_args()
 
     badge_generator = BadgeGenerator(
-        output_dir=args.output_dir,
+        output_path=Path(args.output_dir),
         python_version=args.python_version,
-        tests_report_path=args.tests_report_path,
-        coverage_report_path=args.coverage_report_path,
+        tests_report_path=Path(args.tests_report_path),
+        coverage_report_path=Path(args.coverage_report_path),
+        ruff_report_path=Path(args.ruff_report_path),
     )
     badge_generator.generate_badges()
 
