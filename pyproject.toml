@@ -13,6 +13,10 @@ dependencies = [
 
 [project.optional-dependencies]
 logger = []
+utils = ["anybadge>=1.16.0"]
+
+[project.scripts]
+generate-badges = "common_py.utils.generate_badges:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -23,7 +27,6 @@ packages = ["common_py"]
 
 [dependency-groups]
 dev = [
-    "anybadge>=1.16.0",
     "detect-secrets>=1.5.0",
     "pre-commit>=4.2.0",
     "pytest>=8.4.1",
@@ -48,6 +51,8 @@ ignore = [
 ]
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
+    "ANN002", # flake8-annotations: Missing type annotation for *args
+    "ANN003", # flake8-annotations: Missing type annotation for **kwargs
     "D", # pydocstyle
     "S101", # flake8 bandit: Use of assert detected (disabling allows asserts in tests)
 ]

@@ -9,7 +9,7 @@ from common_py.logger import JSON_FORMATTER, get_json_logger, get_logger
 class _TestHandler(logging.Handler):
     """A handler used to capture the output of the logger such that it can be tested."""
 
-    def __init__(self, *args: any, **kwargs: any) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.messages = []
 
