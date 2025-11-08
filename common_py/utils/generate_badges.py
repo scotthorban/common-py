@@ -2,18 +2,21 @@
 
 import argparse
 import json
+import logging
 from datetime import UTC, datetime
 from pathlib import Path
 
 from anybadge import Badge, colors
 from defusedxml import ElementTree
 
+from common_py.logger import get_logger
+
 COVERAGE_THRESHOLDS = {
     50: colors.Color.RED.value,
     60: colors.Color.ORANGE.value,
     75: colors.Color.YELLOW.value,
-    90: colors.Color.GREEN.value,
-    100: colors.Color.LIGHTGREEN.value,
+    90: colors.Color.YELLOWGREEN.value,
+    100: colors.Color.GREEN.value,
 }
 
 
@@ -31,6 +34,7 @@ class BadgeGenerator:
         self,
         output_path: Path,
         *,
+        logger: logging.Logger | None = None,
         python_version: str | None,
         tests_report_path: Path | None,
         coverage_report_path: Path | None,
@@ -39,6 +43,10 @@ class BadgeGenerator:
     ) -> None:
         """Initializes a BadgeGenerator instance."""
         self.output_path = output_path
+
+        self.logger = logger or get_logger()
+        self.logger.setLevel(level=logging.INFO)
+
         self.python_version = python_version
         self.generate_release_badge = generate_release_badge
         self.tests_report_path = tests_report_path
@@ -48,23 +56,28 @@ class BadgeGenerator:
     def generate_badges(self) -> None:
         """Generate project badges based on arguments provided to the class."""
         if self.python_version:
+            self.logger.info("Generating Python version badge.")
             self.make_badge(
                 label="python", value=self.python_version, filename="python.svg", colour=colors.Color.STEELBLUE
             )
 
         if self.tests_report_path:
+            self.logger.info("Generating unit tests badge.")
             results = self.get_unittest_results()
             self.make_badge(label="unittest", value=results[0], filename="unittest.svg", colour=results[1])
 
         if self.coverage_report_path:
+            self.logger.info("Generating test coverage badge.")
             results = self.get_coverage_results()
             self.make_coverage_badge(label="coverage", value=results, filename="coverage.svg")
 
         if self.ruff_report_path:
+            self.logger.info("Generating ruff badge.")
             results = self.get_ruff_results()
             self.make_badge(label="ruff", value=results[0], filename="ruff.svg", colour=results[1])
 
         if self.generate_release_badge:
+            self.logger.info("Generating release badge.")
             today = datetime.now(tz=UTC).date()
             formatted_date = today.strftime("%Y-%m-%d")
             self.make_badge(
@@ -171,6 +184,7 @@ def main() -> None:
 
     badge_generator = BadgeGenerator(
         output_path=Path(args.output_dir),
+        logger=get_logger(),
         python_version=args.python_version,
         generate_release_badge=args.release_badge,
         tests_report_path=Path(args.tests_report_path),
