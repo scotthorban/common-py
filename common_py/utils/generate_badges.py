@@ -123,20 +123,15 @@ class BadgeGenerator:
         """Read and return coverage from a unit-tests.xml file."""
         root = ElementTree.parse(source=self.coverage_report_path).getroot()
         coverage_score = root.attrib["line-rate"]
-        if coverage_score == "1":
-            return 100
 
-        return round(100.0 * float(coverage_score), 1)
+        return 100 if coverage_score == "1" else round(100.0 * float(coverage_score), 1)
 
     def get_ruff_results(self) -> tuple[str, colors.Color]:
         """Read and return Ruff result from PROJECT_ROOT_DIR/reports/linting.txt."""
         with Path.open(self.ruff_report_path) as linting_file:
             content = json.load(fp=linting_file)
 
-        if not content:
-            return "Passing", colors.Color.GREEN
-
-        return "Failing", colors.Color.RED
+        return ("Passing", colors.Color.GREEN) if content == [] else ("Failing", colors.Color.RED)
 
 
 def main() -> None:
