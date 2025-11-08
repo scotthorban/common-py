@@ -25,9 +25,12 @@ class BadgeGenerator:
 
     Attributes:
         output_path (Path): Path to the output directory.
+        logger (logging.Logger): Logger instance for log messages.
         python_version (str): Python version.
         tests_report_path (Path): Path to the unit tests XML report.
         coverage_report_path (Path): Path to the unit test coverage XML report.
+        ruff_report_path (Path): Path to the ruff JSON report.
+        generate_release_badge (bool): Whether to generate a release badge or not.
     """
 
     def __init__(
@@ -92,8 +95,8 @@ class BadgeGenerator:
             label (str): The label of the badge.
             value (str): The value of the badge.
             filename (str): The filename where the badge will be saved.
-            colour (str | None): Optional colour of the badge.
-                Anybadge will infer the colour if omitted and the value is an integer between 0 and 100.
+            colour (anybadge.colors.Color): Optional colour of the badge.
+                Anybadge will infer the colour if omitted and the value is a float between 0 and 100.
         """
         badge = Badge(label=label, value=str(value), default_color=colour.value)
         badge.write_badge(str(self.output_path.joinpath(filename)), overwrite=True)
@@ -112,7 +115,8 @@ class BadgeGenerator:
     def get_unittest_results(self) -> tuple[str, colors.Color]:
         """Read and return test results from a unit-tests.xml file.
 
-        Returns a tuple of the test results and the colour of the badge.
+        Returns:
+             A tuple of the test results and the colour of the badge.
         """
         root = ElementTree.parse(source=self.tests_report_path).getroot()
 
