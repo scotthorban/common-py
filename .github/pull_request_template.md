@@ -3,3 +3,5 @@
 
 ### Checklist
 - [ ] Tests created for new code?
+- [ ] `pyproject.toml` version incremented?
+- [ ] `CHANGELOG.md` updated?
