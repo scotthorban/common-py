@@ -1,6 +1,6 @@
 [project]
 name = "common_py"
-version = "0.3.0"
+version = "0.4.0"
 description = "A library of common, generic python modules designed to be used in other projects."
 authors = [
     {name="scotthorban", email="scotthorban@gmail.com"}
@@ -31,6 +31,7 @@ dev = [
     "pytest-cov>=6.2.1",
     "ruff>=0.12.8",
     "taskipy>=1.14.1",
+    "ty>=0.0.1a25",
     "typing-extensions>=4.14.1",
 ]
 
@@ -82,6 +83,7 @@ check-lint = { cmd = "ruff check; ruff check --output-file reports/ruff.json --o
 lint = { cmd = "ruff check --fix", help = "Run ruff linter and attempt to auto-fix issues" }
 check-format = { cmd = "ruff format --diff", help = "View ruff formatting diff" }
 format = { cmd = "ruff format", help = "Format code using ruff" }
+check-types = { cmd = "ty check; ty check --output-format gitlab > reports/ty.json" }
 badge = { cmd = "python common_py/utils/generate_badges.py -pv '>=3.11' -trp reports/unit-tests.xml -crp reports/coverage.xml -rrp reports/ruff.json", help = "Generate project badges for README.md" }
 
-tests = { cmd = "task unit && task coverage && task check-lint && task check-format && task badge", help = "Run unit, coverage, check-lint, check-format and badge tasks in a single command" }
+tests = { cmd = "task unit && task coverage && task check-lint && task check-format && task check-types && task badge", help = "Run unit, coverage, check-lint, check-format and badge tasks in a single command" }
