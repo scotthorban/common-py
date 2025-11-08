@@ -118,6 +118,10 @@ class BadgeGenerator:
         Returns:
              A tuple of the test results and the colour of the badge.
         """
+        if not self.tests_report_path:
+            err_msg = "Tests report path not provided."
+            raise AttributeError(err_msg)
+
         root = ElementTree.parse(source=self.tests_report_path).getroot()
 
         failures = 0
@@ -128,24 +132,32 @@ class BadgeGenerator:
             skipped = int(type_tag.get("skipped"))
             tests = int(type_tag.get("tests"))
 
-        result_mapping = {
-            failures > 0: (f"{failures} skipped {tests - failures} passed", colors.Color.RED),
-            skipped > 0: (f"{skipped} skipped {tests - skipped} passed", colors.Color.YELLOW),
-            failures == 0 and skipped == 0: (f"{tests} passed", colors.Color.GREEN),
-        }
+        if failures > 0:
+            return f"{failures} skipped {tests - failures} passed", colors.Color.RED
 
-        return result_mapping.get(True)
+        if skipped > 0:
+            return f"{skipped} skipped {tests - skipped} passed", colors.Color.YELLOW
+
+        return f"{tests} passed", colors.Color.GREEN
 
     def get_coverage_results(self) -> float:
         """Read and return coverage from a unit-tests.xml file."""
+        if not self.coverage_report_path:
+            err_msg = "Coverage report path not provided."
+            raise AttributeError(err_msg)
+
         root = ElementTree.parse(source=self.coverage_report_path).getroot()
         coverage_score = root.attrib["line-rate"]
 
         return 100 if coverage_score == "1" else round(100.0 * float(coverage_score), 1)
 
     def get_ruff_results(self) -> tuple[str, colors.Color]:
-        """Read and return Ruff result from PROJECT_ROOT_DIR/reports/linting.txt."""
-        with Path.open(self.ruff_report_path) as linting_file:
+        """Read and return Ruff result from a ruff results JSON file."""
+        if not self.ruff_report_path:
+            err_msg = "Ruff report path not provided."
+            raise AttributeError(err_msg)
+
+        with self.ruff_report_path.open(mode="r") as linting_file:
             content = json.load(fp=linting_file)
 
         return ("Passing", colors.Color.GREEN) if content == [] else ("Failing", colors.Color.RED)
