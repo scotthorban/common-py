@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from anybadge import Badge, colors
-from defusedxml import ElementTree
+from defusedxml.ElementTree import parse
 
 from common_py.logger import get_logger
 
@@ -130,7 +130,7 @@ class BadgeGenerator:
             err_msg = "Tests report path not provided."
             raise AttributeError(err_msg)
 
-        root = ElementTree.parse(source=self.tests_report_path).getroot()
+        root = parse(source=self.tests_report_path).getroot()
 
         failures = 0
         skipped = 0
@@ -141,7 +141,7 @@ class BadgeGenerator:
             tests = int(type_tag.get("tests"))
 
         if failures > 0:
-            return f"{failures} skipped {tests - failures} passed", colors.Color.RED
+            return f"{failures} failed {tests - failures - skipped} passed", colors.Color.RED
 
         if skipped > 0:
             return f"{skipped} skipped {tests - skipped} passed", colors.Color.YELLOW
@@ -154,7 +154,7 @@ class BadgeGenerator:
             err_msg = "Coverage report path not provided."
             raise AttributeError(err_msg)
 
-        root = ElementTree.parse(source=self.coverage_report_path).getroot()
+        root = parse(source=self.coverage_report_path).getroot()
         coverage_score = root.attrib["line-rate"]
 
         return 100 if coverage_score == "1" else round(100.0 * float(coverage_score), 1)

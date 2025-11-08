@@ -1,41 +1,90 @@
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from common_py.utils.generate_badges import main
+from anybadge import colors
+from defusedxml.ElementTree import fromstring
+
+from common_py.utils.generate_badges import BadgeGenerator, main
 from definitions import TEST_FILES_DIR
+
+TESTS_REPORT_PATH = TEST_FILES_DIR.joinpath("unit-tests.xml")
+COVERAGE_REPORT_PATH = TEST_FILES_DIR.joinpath("coverage.xml")
+RUFF_REPORT_PATH = TEST_FILES_DIR.joinpath("ruff.json")
+TY_REPORT_PATH = TEST_FILES_DIR.joinpath("ty.json")
+
+
+def generate_unittest_element_tree(
+    num_errors: int, num_failures: int, num_skipped: int, num_tests: int
+) -> ET.ElementTree:
+    """Helper function to generate an ElementTree for unittest XML."""
+    return ET.ElementTree(
+        element=fromstring(
+            text=f"""<testsuites name="pytest tests">
+                        <testsuite name="pytest" errors="{num_errors}" failures="{num_failures}"
+                        skipped="{num_skipped}" tests="{num_tests}">
+                        </testsuite>
+                    </testsuites>"""
+        )
+    )
+
+
+UNITTEST_XML_ALL_PASS = generate_unittest_element_tree(num_errors=0, num_failures=0, num_skipped=0, num_tests=1)
+UNITTEST_XML_PASS_AND_SKIP = generate_unittest_element_tree(num_errors=0, num_failures=0, num_skipped=1, num_tests=2)
+UNITTEST_XML_FAIL = generate_unittest_element_tree(num_errors=0, num_failures=1, num_skipped=1, num_tests=3)
 
 
 class TestBadgeGenerator(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.temp_dir = TemporaryDirectory()
+        cls.badge_generator = BadgeGenerator(
+            output_path=Path(cls.temp_dir.name),
+            python_version="3.11",
+            tests_report_path=TESTS_REPORT_PATH,
+            coverage_report_path=COVERAGE_REPORT_PATH,
+            ruff_report_path=RUFF_REPORT_PATH,
+            ty_report_path=TY_REPORT_PATH,
+            generate_release_badge=True,
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:
         cls.temp_dir.cleanup()
 
-    def test_badge_generator(self) -> None:
-        with patch(
-            "sys.argv",
-            [
-                "script_name",
-                "--output-dir",
-                str(self.temp_dir.name),
-                "--python-version",
-                "3.11",
-                "--tests-report-path",
-                str(TEST_FILES_DIR.joinpath("unit-tests.xml")),
-                "--coverage-report-path",
-                str(TEST_FILES_DIR.joinpath("coverage.xml")),
-                "--ruff-report-path",
-                str(TEST_FILES_DIR.joinpath("ruff.json")),
-            ],
-        ):
-            main()
-        assert Path(self.temp_dir.name).joinpath("python.svg").exists()
-        assert Path(self.temp_dir.name).joinpath("release.svg").exists()
-        assert Path(self.temp_dir.name).joinpath("unittest.svg").exists()
-        assert Path(self.temp_dir.name).joinpath("coverage.svg").exists()
-        assert Path(self.temp_dir.name).joinpath("ruff.svg").exists()
+    @patch(
+        target="sys.argv",
+        return_value=[
+            "script_name",
+            "--output-dir",
+            "dummy_output_dir",
+            "--python-version",
+            "3.11",
+            "--tests-report-path",
+            "dummy_test_report_path",
+            "--coverage-report-path",
+            "dummy_coverage_report_path",
+            "--ruff-report-path",
+            "dummy_ruff_report_path",
+            "--ty-report-path",
+            "dummy_ty_report_path",
+        ],
+    )
+    @patch(target="common_py.utils.generate_badges.BadgeGenerator.generate_badges")
+    def test_badge_generator_main(self, mock_generate_badges: MagicMock, _mock_args: MagicMock) -> None:
+        main()
+        mock_generate_badges.assert_called_once()
+
+    @patch(target="common_py.utils.generate_badges.parse", return_value=UNITTEST_XML_ALL_PASS)
+    def test_get_unittest_results_all_passed(self, _mock_parse: MagicMock) -> None:
+        assert self.badge_generator.get_unittest_results() == ("1 passed", colors.Color.GREEN)
+
+    @patch(target="common_py.utils.generate_badges.parse", return_value=UNITTEST_XML_PASS_AND_SKIP)
+    def test_get_unittest_results_pass_and_skip(self, _mock_parse: MagicMock) -> None:
+        assert self.badge_generator.get_unittest_results() == ("1 skipped 1 passed", colors.Color.YELLOW)
+
+    @patch(target="common_py.utils.generate_badges.parse", return_value=UNITTEST_XML_FAIL)
+    def test_get_unittest_results_fail(self, _mock_parse: MagicMock) -> None:
+        assert self.badge_generator.get_unittest_results() == ("1 failed 1 passed", colors.Color.RED)
