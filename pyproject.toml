@@ -82,6 +82,6 @@ check-lint = { cmd = "ruff check; ruff check --output-file reports/ruff.json --o
 lint = { cmd = "ruff check --fix", help = "Run ruff linter and attempt to auto-fix issues" }
 check-format = { cmd = "ruff format --diff", help = "View ruff formatting diff" }
 format = { cmd = "ruff format", help = "Format code using ruff" }
-badge = { cmd = "python common_py/utils/generate_badges.py -pv 3.11 -trp reports/unit-tests.xml -crp reports/coverage.xml -rrp reports/ruff.json", help = "Generate project badges for README.md" }
+badge = { cmd = "python common_py/utils/generate_badges.py -pv '>=3.11' -trp reports/unit-tests.xml -crp reports/coverage.xml -rrp reports/ruff.json", help = "Generate project badges for README.md" }
 
 tests = { cmd = "task unit && task coverage && task check-lint && task check-format && task badge", help = "Run unit, coverage, check-lint, check-format and badge tasks in a single command" }
