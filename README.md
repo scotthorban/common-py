@@ -4,6 +4,7 @@
 ![](docs/img/unittest.svg)
 ![](docs/img/coverage.svg)
 ![](docs/img/ruff.svg)
+![](docs/img/ty.svg)
 ![](docs/img/release.svg)
 
 ### 1. Description

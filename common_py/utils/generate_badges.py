@@ -30,6 +30,7 @@ class BadgeGenerator:
         tests_report_path (Path): Path to the unit tests XML report.
         coverage_report_path (Path): Path to the unit test coverage XML report.
         ruff_report_path (Path): Path to the ruff JSON report.
+        ty_report_path (Path): Path to the ty JSON report.
         generate_release_badge (bool): Whether to generate a release badge or not.
     """
 
@@ -42,6 +43,7 @@ class BadgeGenerator:
         tests_report_path: Path | None,
         coverage_report_path: Path | None,
         ruff_report_path: Path | None,
+        ty_report_path: Path | None,
         generate_release_badge: bool,
     ) -> None:
         """Initializes a BadgeGenerator instance."""
@@ -51,10 +53,11 @@ class BadgeGenerator:
         self.logger.setLevel(level=logging.INFO)
 
         self.python_version = python_version
-        self.generate_release_badge = generate_release_badge
         self.tests_report_path = tests_report_path
         self.coverage_report_path = coverage_report_path
         self.ruff_report_path = ruff_report_path
+        self.ty_report_path = ty_report_path
+        self.generate_release_badge = generate_release_badge
 
     def generate_badges(self) -> None:
         """Generate project badges based on arguments provided to the class."""
@@ -78,6 +81,11 @@ class BadgeGenerator:
             self.logger.info("Generating ruff badge.")
             results = self.get_ruff_results()
             self.make_badge(label="ruff", value=results[0], filename="ruff.svg", colour=results[1])
+
+        if self.ty_report_path:
+            self.logger.info("Generating ty badge.")
+            results = self.get_ty_results()
+            self.make_badge(label="ty", value=results[0], filename="ty.svg", colour=results[1])
 
         if self.generate_release_badge:
             self.logger.info("Generating release badge.")
@@ -152,7 +160,11 @@ class BadgeGenerator:
         return 100 if coverage_score == "1" else round(100.0 * float(coverage_score), 1)
 
     def get_ruff_results(self) -> tuple[str, colors.Color]:
-        """Read and return Ruff result from a ruff results JSON file."""
+        """Read and return Ruff result from a ruff results JSON file.
+
+        Returns:
+            A tuple of either "passing" or "failing" alongside the corresponding badge colour.
+        """
         if not self.ruff_report_path:
             err_msg = "Ruff report path not provided."
             raise AttributeError(err_msg)
@@ -162,19 +174,27 @@ class BadgeGenerator:
 
         return ("Passing", colors.Color.GREEN) if content == [] else ("Failing", colors.Color.RED)
 
+    def get_ty_results(self) -> tuple[str, colors.Color]:
+        """Read and return ty result from a ty results JSON file.
+
+        Returns:
+            A tuple of either "passing" or "failing" alongside the corresponding badge colour.
+        """
+        if not self.ty_report_path:
+            err_msg = "Ty report path not provided."
+            raise AttributeError(err_msg)
+
+        if self.ty_report_path.stat().st_size == 0:
+            return "Passing", colors.Color.GREEN
+
+        return "Failing", colors.Color.RED
+
 
 def main() -> None:
     """Main function for badge generation."""
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output-dir", type=str, default="docs/img", help="Output directory for project badges")
     parser.add_argument("-pv", "--python-version", type=str, help="Supported python versions")
-    parser.add_argument(
-        "-rb",
-        "--release-badge",
-        type=bool,
-        default=True,
-        help="Set to true to generate a release badge in YYYY-MM-DD format",
-    )
     parser.add_argument(
         "-trp",
         "--tests-report-path",
@@ -196,16 +216,31 @@ def main() -> None:
         default="reports/ruff.json",
         help="Path to the ruff JSON report",
     )
+    parser.add_argument(
+        "-tyrp",
+        "--ty-report-path",
+        type=str,
+        default="reports/ty.json",
+        help="Path to the ty JSON report",
+    )
+    parser.add_argument(
+        "-rb",
+        "--release-badge",
+        type=bool,
+        default=True,
+        help="Set to true to generate a release badge in YYYY-MM-DD format",
+    )
     args = parser.parse_args()
 
     badge_generator = BadgeGenerator(
         output_path=Path(args.output_dir),
         logger=get_logger(),
         python_version=args.python_version,
-        generate_release_badge=args.release_badge,
         tests_report_path=Path(args.tests_report_path),
         coverage_report_path=Path(args.coverage_report_path),
         ruff_report_path=Path(args.ruff_report_path),
+        ty_report_path=Path(args.ty_report_path),
+        generate_release_badge=args.release_badge,
     )
     badge_generator.generate_badges()
 
