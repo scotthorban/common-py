@@ -2,19 +2,13 @@ import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 from anybadge import colors
 from defusedxml.ElementTree import fromstring
 
 from common_py.utils.generate_badges import BadgeGenerator, main
-from definitions import TEST_FILES_DIR
-
-TESTS_REPORT_PATH = TEST_FILES_DIR.joinpath("unit-tests.xml")
-COVERAGE_REPORT_PATH = TEST_FILES_DIR.joinpath("coverage.xml")
-RUFF_REPORT_PATH = TEST_FILES_DIR.joinpath("ruff.json")
-TY_REPORT_PATH = TEST_FILES_DIR.joinpath("ty.json")
 
 
 def generate_unittest_element_tree(
@@ -52,10 +46,10 @@ class TestBadgeGenerator(unittest.TestCase):
         cls.badge_generator = BadgeGenerator(
             output_path=Path(cls.temp_dir.name),
             python_version="3.11",
-            tests_report_path=TESTS_REPORT_PATH,
-            coverage_report_path=COVERAGE_REPORT_PATH,
-            ruff_report_path=RUFF_REPORT_PATH,
-            ty_report_path=TY_REPORT_PATH,
+            tests_report_path=Path("dummy_test_report_path"),
+            coverage_report_path=Path("--coverage-report-path"),
+            ruff_report_path=Path("dummy_ruff_report_path"),
+            ty_report_path=Path("dummy_ty_report_path"),
             generate_release_badge=True,
         )
 
@@ -121,13 +115,15 @@ class TestBadgeGenerator(unittest.TestCase):
         badge_generator.ruff_report_path = None
         pytest.raises(AttributeError, badge_generator.get_ruff_results)
 
-    @patch(target="common_py.utils.generate_badges.load", return_value=[])
-    def test_get_ruff_results_passing(self, _mock_parse: MagicMock) -> None:
+    @patch.object(target=Path, attribute="open", new_callable=mock_open, read_data="[]")
+    def test_get_ruff_results_passing(self, mock_file: MagicMock) -> None:
         assert self.badge_generator.get_ruff_results() == ("Passing", colors.Color.GREEN)
+        mock_file.assert_called_once_with(mode="r")
 
-    @patch(target="common_py.utils.generate_badges.load", return_value=[{"dummy": "dummy"}])
-    def test_get_ruff_results_failing(self, _mock_parse: MagicMock) -> None:
+    @patch.object(target=Path, attribute="open", new_callable=mock_open, read_data='[{"dummy": "dummy"}]')
+    def test_get_ruff_results_failing(self, mock_file: MagicMock) -> None:
         assert self.badge_generator.get_ruff_results() == ("Failing", colors.Color.RED)
+        mock_file.assert_called_once_with(mode="r")
 
     def test_get_ty_results_raises_on_missing_coverage_report_path(self) -> None:
         badge_generator = self.badge_generator
