@@ -128,3 +128,18 @@ class TestBadgeGenerator(unittest.TestCase):
     @patch(target="common_py.utils.generate_badges.load", return_value=[{"dummy": "dummy"}])
     def test_get_ruff_results_failing(self, _mock_parse: MagicMock) -> None:
         assert self.badge_generator.get_ruff_results() == ("Failing", colors.Color.RED)
+
+    def test_get_ty_results_raises_on_missing_coverage_report_path(self) -> None:
+        badge_generator = self.badge_generator
+        badge_generator.ty_report_path = None
+        pytest.raises(AttributeError, badge_generator.get_ty_results)
+
+    @patch.object(target=Path, attribute="stat")
+    def test_get_ty_results_passing(self, mock_path_stat: MagicMock) -> None:
+        mock_path_stat.return_value = MagicMock(st_size=0)
+        assert self.badge_generator.get_ty_results() == ("Passing", colors.Color.GREEN)
+
+    @patch.object(target=Path, attribute="stat")
+    def test_get_ty_results_failing(self, mock_path_stat: MagicMock) -> None:
+        mock_path_stat.return_value = MagicMock(st_size=1)
+        assert self.badge_generator.get_ty_results() == ("Failing", colors.Color.RED)
