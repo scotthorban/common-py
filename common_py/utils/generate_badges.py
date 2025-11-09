@@ -1,9 +1,9 @@
 """A module to generate project badges designed for use in a README.md file."""
 
 import argparse
-import json
 import logging
 from datetime import UTC, datetime
+from json import load
 from pathlib import Path
 
 from anybadge import Badge, colors
@@ -170,7 +170,7 @@ class BadgeGenerator:
             raise AttributeError(err_msg)
 
         with self.ruff_report_path.open(mode="r") as linting_file:
-            content = json.load(fp=linting_file)
+            content = load(fp=linting_file)
 
         return ("Passing", colors.Color.GREEN) if content == [] else ("Failing", colors.Color.RED)
 

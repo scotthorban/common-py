@@ -115,3 +115,16 @@ class TestBadgeGenerator(unittest.TestCase):
     @patch(target="common_py.utils.generate_badges.parse", return_value=COVERAGE_XML_UNROUNDED_pct)
     def test_get_coverage_results_50_pct(self, _mock_parse: MagicMock) -> None:
         assert self.badge_generator.get_coverage_results() == 12.3
+
+    def test_get_ruff_results_raises_on_missing_coverage_report_path(self) -> None:
+        badge_generator = self.badge_generator
+        badge_generator.ruff_report_path = None
+        pytest.raises(AttributeError, badge_generator.get_ruff_results)
+
+    @patch(target="common_py.utils.generate_badges.load", return_value=[])
+    def test_get_ruff_results_passing(self, _mock_parse: MagicMock) -> None:
+        assert self.badge_generator.get_ruff_results() == ("Passing", colors.Color.GREEN)
+
+    @patch(target="common_py.utils.generate_badges.load", return_value=[{"dummy": "dummy"}])
+    def test_get_ruff_results_failing(self, _mock_parse: MagicMock) -> None:
+        assert self.badge_generator.get_ruff_results() == ("Failing", colors.Color.RED)
