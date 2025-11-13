@@ -2,7 +2,7 @@ import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, call, mock_open, patch
 
 import pytest
 from anybadge import colors
@@ -15,15 +15,12 @@ def generate_unittest_element_tree(
     num_errors: int, num_failures: int, num_skipped: int, num_tests: int
 ) -> ET.ElementTree:
     """Helper function to generate an ElementTree for unittest XML."""
-    return ET.ElementTree(
-        element=fromstring(
-            text=f"""<testsuites name="pytest tests">
-                        <testsuite name="pytest" errors="{num_errors}" failures="{num_failures}"
-                        skipped="{num_skipped}" tests="{num_tests}">
-                        </testsuite>
-                    </testsuites>"""
-        )
-    )
+    xml = f"""<testsuites name="pytest tests">
+                <testsuite name="pytest" errors="{num_errors}" failures="{num_failures}"
+                skipped="{num_skipped}" tests="{num_tests}">
+                </testsuite>
+              </testsuites>"""
+    return ET.ElementTree(element=fromstring(text=xml))
 
 
 def generate_coverage_report_tree(line_rate: float) -> ET.ElementTree:
@@ -79,6 +76,42 @@ class TestBadgeGenerator(unittest.TestCase):
     def test_badge_generator_main(self, mock_generate_badges: MagicMock, _mock_args: MagicMock) -> None:
         main()
         mock_generate_badges.assert_called_once()
+
+    @patch(target="common_py.utils.generate_badges.BadgeGenerator.make_badge")
+    @patch(target="common_py.utils.generate_badges.BadgeGenerator.make_coverage_badge")
+    @patch(
+        target="common_py.utils.generate_badges.BadgeGenerator.get_unittest_results",
+        return_value=("1 passed", colors.Color.GREEN),
+    )
+    @patch(target="common_py.utils.generate_badges.BadgeGenerator.get_coverage_results", return_value=100)
+    @patch(
+        target="common_py.utils.generate_badges.BadgeGenerator.get_ruff_results",
+        return_value=("Passing", colors.Color.GREEN),
+    )
+    @patch(
+        target="common_py.utils.generate_badges.BadgeGenerator.get_ty_results",
+        return_value=("Passing", colors.Color.GREEN),
+    )
+    def test_generate_badges(
+        self,
+        _mock_get_ty_results: MagicMock,
+        _mock_get_ruff_results: MagicMock,
+        _mock_get_coverage_results: MagicMock,
+        _mock_get_unittest_results: MagicMock,
+        mock_make_coverage_badge: MagicMock,
+        mock_make_badge: MagicMock,
+    ) -> None:
+        self.badge_generator.generate_badges()
+        mock_make_badge.assert_has_calls(
+            calls=[
+                call(label="python", value="3.11", filename="python.svg", colour=colors.Color.STEELBLUE),
+                call(label="unittest", value="1 passed", filename="unittest.svg", colour=colors.Color.GREEN),
+                call(label="ruff", value="Passing", filename="ruff.svg", colour=colors.Color.GREEN),
+                call(label="ty", value="Passing", filename="ty.svg", colour=colors.Color.GREEN),
+                call(label="release", value="2025-11-13", filename="release.svg", colour=colors.Color.STEELBLUE),
+            ]
+        )
+        mock_make_coverage_badge.assert_called_once_with(label="coverage", value=100, filename="coverage.svg")
 
     def test_get_unittest_results_raises_on_missing_tests_report_path(self) -> None:
         badge_generator = self.badge_generator
