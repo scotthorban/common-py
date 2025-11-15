@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, call, mock_open, patch
 import pytest
 from anybadge import colors
 from defusedxml.ElementTree import fromstring
+from freezegun import freeze_time
 
 from common_py.utils.generate_badges import BadgeGenerator, main
 
@@ -92,6 +93,7 @@ class TestBadgeGenerator(unittest.TestCase):
         target="common_py.utils.generate_badges.BadgeGenerator.get_ty_results",
         return_value=("Passing", colors.Color.GREEN),
     )
+    @freeze_time(time_to_freeze="1900-01-01")
     def test_generate_badges(
         self,
         _mock_get_ty_results: MagicMock,
@@ -108,7 +110,7 @@ class TestBadgeGenerator(unittest.TestCase):
                 call(label="unittest", value="1 passed", filename="unittest.svg", colour=colors.Color.GREEN),
                 call(label="ruff", value="Passing", filename="ruff.svg", colour=colors.Color.GREEN),
                 call(label="ty", value="Passing", filename="ty.svg", colour=colors.Color.GREEN),
-                call(label="release", value="2025-11-13", filename="release.svg", colour=colors.Color.STEELBLUE),
+                call(label="release", value="1900-01-01", filename="release.svg", colour=colors.Color.STEELBLUE),
             ]
         )
         mock_make_coverage_badge.assert_called_once_with(label="coverage", value=100, filename="coverage.svg")
