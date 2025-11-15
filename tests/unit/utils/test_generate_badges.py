@@ -115,6 +115,12 @@ class TestBadgeGenerator(unittest.TestCase):
         )
         mock_make_coverage_badge.assert_called_once_with(label="coverage", value=100, filename="coverage.svg")
 
+    def test_make_badge(self) -> None:
+        self.badge_generator.make_badge(
+            label="test_badge", value="test", filename="test_badge.svg", colour=colors.Color.GREEN
+        )
+        assert Path(self.temp_dir.name).joinpath("test_badge.svg").exists()
+
     def test_get_unittest_results_raises_on_missing_tests_report_path(self) -> None:
         badge_generator = self.badge_generator
         badge_generator.tests_report_path = None
