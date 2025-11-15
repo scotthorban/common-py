@@ -121,6 +121,10 @@ class TestBadgeGenerator(unittest.TestCase):
         )
         assert Path(self.temp_dir.name).joinpath("test_badge.svg").exists()
 
+    def test_make_coverage_badge(self) -> None:
+        self.badge_generator.make_coverage_badge(label="test_badge", value=60, filename="test_coverage_badge.svg")
+        assert Path(self.temp_dir.name).joinpath("test_coverage_badge.svg").exists()
+
     def test_get_unittest_results_raises_on_missing_tests_report_path(self) -> None:
         badge_generator = self.badge_generator
         badge_generator.tests_report_path = None
