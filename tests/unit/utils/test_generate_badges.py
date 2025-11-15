@@ -1,5 +1,6 @@
 import unittest
 import xml.etree.ElementTree as ET
+from argparse import Namespace
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, call, mock_open, patch
@@ -29,6 +30,16 @@ def generate_coverage_report_tree(line_rate: float) -> ET.ElementTree:
     return ET.ElementTree(element=fromstring(text=f"""<coverage line-rate="{line_rate}"></coverage>"""))
 
 
+MOCK_NAMESPACE = Namespace(
+    output_dir="dummy_output_dir",
+    python_version=None,
+    tests_report_path=None,
+    coverage_report_path=None,
+    ruff_report_path=None,
+    ty_report_path=None,
+    release_badge=None,
+)
+
 UNITTEST_XML_ALL_PASS = generate_unittest_element_tree(num_errors=0, num_failures=0, num_skipped=0, num_tests=1)
 UNITTEST_XML_PASS_AND_SKIP = generate_unittest_element_tree(num_errors=0, num_failures=0, num_skipped=1, num_tests=2)
 UNITTEST_XML_FAIL = generate_unittest_element_tree(num_errors=0, num_failures=1, num_skipped=1, num_tests=3)
@@ -44,10 +55,10 @@ class TestBadgeGenerator(unittest.TestCase):
         cls.badge_generator = BadgeGenerator(
             output_path=Path(cls.temp_dir.name),
             python_version="3.11",
-            tests_report_path=Path("dummy_test_report_path"),
-            coverage_report_path=Path("--coverage-report-path"),
-            ruff_report_path=Path("dummy_ruff_report_path"),
-            ty_report_path=Path("dummy_ty_report_path"),
+            tests_report_path="dummy_test_report_path",
+            coverage_report_path="--coverage-report-path",
+            ruff_report_path="dummy_ruff_report_path",
+            ty_report_path="dummy_ty_report_path",
             generate_release_badge=True,
         )
 
@@ -55,24 +66,7 @@ class TestBadgeGenerator(unittest.TestCase):
     def tearDownClass(cls) -> None:
         cls.temp_dir.cleanup()
 
-    @patch(
-        target="sys.argv",
-        return_value=[
-            "script_name",
-            "--output-dir",
-            "dummy_output_dir",
-            "--python-version",
-            "3.11",
-            "--tests-report-path",
-            "dummy_test_report_path",
-            "--coverage-report-path",
-            "dummy_coverage_report_path",
-            "--ruff-report-path",
-            "dummy_ruff_report_path",
-            "--ty-report-path",
-            "dummy_ty_report_path",
-        ],
-    )
+    @patch(target="common_py.utils.generate_badges.argparse.ArgumentParser.parse_args", return_value=MOCK_NAMESPACE)
     @patch(target="common_py.utils.generate_badges.BadgeGenerator.generate_badges")
     def test_badge_generator_main(self, mock_generate_badges: MagicMock, _mock_args: MagicMock) -> None:
         main()

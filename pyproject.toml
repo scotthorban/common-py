@@ -87,6 +87,6 @@ lint = { cmd = "ruff check --fix", help = "Run ruff linter and attempt to auto-f
 check-format = { cmd = "ruff format --diff", help = "View ruff formatting diff" }
 format = { cmd = "ruff format", help = "Format code using ruff" }
 check-types = { cmd = "ty check; ty check --output-format gitlab > reports/ty.json" }
-badge = { cmd = "python common_py/utils/generate_badges.py -pv '>=3.11' -trp reports/unit-tests.xml -crp reports/coverage.xml -rrp reports/ruff.json -tyrp reports/ty.json", help = "Generate project badges for README.md" }
+badge = { cmd = "python common_py/utils/generate_badges.py -o 'docs/img' -pv '>=3.11' -trp reports/unit-tests.xml -crp reports/coverage.xml -rrp reports/ruff.json -tyrp reports/ty.json -rb true", help = "Generate project badges for README.md" }
 
 tests = { cmd = "task unit && task coverage && task check-lint && task check-format && task check-types && task badge", help = "Run unit, coverage, check-lint, check-format and badge tasks in a single command" }
