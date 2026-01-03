@@ -1,0 +1,4 @@
+test_join_constructor:
+  key1: &value1 value1
+  key2: &value2 value2
+  key3: !join [ *value1, -, *value2 ]

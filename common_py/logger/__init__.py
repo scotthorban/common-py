@@ -1,3 +1,5 @@
+"""A common logger with a built-in option for JSON formatting."""
+
 from common_py.logger.formatters import JSON_FORMATTER
 from common_py.logger.logger import get_json_logger, get_logger
 
