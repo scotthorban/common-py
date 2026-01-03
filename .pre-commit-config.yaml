@@ -9,6 +9,7 @@ repos:
     rev: v2.3.0
     hooks:
       - id: check-yaml
+        args: [--unsafe]
         exclude: .*/tests/.*
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
