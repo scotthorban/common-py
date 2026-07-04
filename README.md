@@ -10,7 +10,7 @@
 ### 1. Description
 A library of common, generic python modules designed to be used in other projects.
 
-### 2. Installtion 
+### 2. Installation 
 > ⚠️ **Important**
 > 
 > To use `common-py` modules in other repositories, you must have configured your git with an SSH key with access to clone the `common-py` repository.
