@@ -11,7 +11,7 @@ from defusedxml.ElementTree import parse
 
 from common_py.logger import get_logger
 
-COVERAGE_THRESHOLDS = {
+COVERAGE_THRESHOLDS: dict[int | float, str] = {
     50: colors.Color.RED.value,
     60: colors.Color.ORANGE.value,
     75: colors.Color.YELLOW.value,

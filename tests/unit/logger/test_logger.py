@@ -13,8 +13,9 @@ class _TestHandler(logging.Handler):
         super().__init__(*args, **kwargs)
         self.messages = []
 
-    def handle(self, record: logging.LogRecord) -> None:
+    def handle(self, record: logging.LogRecord) -> bool:
         self.messages.append(self.format(record))
+        return True
 
 
 class TestLogger:
@@ -29,7 +30,8 @@ class TestLogger:
     last_message = handler.messages[-1]
 
     def test_get_logger_raises_on_invalid_level(self) -> None:
-        pytest.raises(ValueError, get_logger, name="test", level=-1)
+        with pytest.raises(expected_exception=ValueError, match=r"get_logger\(\) received an invalid logging level.*"):
+            get_logger(name="test", level=-1)
 
     def test_message_is_logged_as_string(self) -> None:
         assert self.last_message == "test message"
