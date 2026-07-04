@@ -8,6 +8,8 @@ This project adheres to [semantic versioning](https://semver.org/).
 ## 0.5.1
 
 - [#17](https://github.com/scotthorban/common-py/issues/17) - Upgrade ruff and ty versions & fix any new issues.
+- [#17](https://github.com/scotthorban/common-py/issues/17) - Fix ty badge generation for newer ty versions, which write
+  an empty list to a file instead of an empty file.
 
 ## 0.5.0
 

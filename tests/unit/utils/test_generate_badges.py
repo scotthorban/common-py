@@ -173,12 +173,17 @@ class TestBadgeGenerator(unittest.TestCase):
         with pytest.raises(AttributeError):
             badge_generator.get_ty_results()
 
-    @patch.object(target=Path, attribute="stat")
-    def test_get_ty_results_passing(self, mock_path_stat: MagicMock) -> None:
-        mock_path_stat.return_value = MagicMock(st_size=0)
+    @patch.object(target=Path, attribute="read_text", return_value="")
+    def test_get_ty_results_passing_for_legacy_ty(self, mock_read_text: MagicMock) -> None:
         assert self.badge_generator.get_ty_results() == ("Passing", colors.Color.GREEN)
+        mock_read_text.assert_called_once_with(encoding="utf-8")
 
-    @patch.object(target=Path, attribute="stat")
-    def test_get_ty_results_failing(self, mock_path_stat: MagicMock) -> None:
-        mock_path_stat.return_value = MagicMock(st_size=1)
+    @patch.object(target=Path, attribute="read_text", return_value="[]")
+    def test_get_ty_results_passing(self, mock_read_text: MagicMock) -> None:
+        assert self.badge_generator.get_ty_results() == ("Passing", colors.Color.GREEN)
+        mock_read_text.assert_called_once_with(encoding="utf-8")
+
+    @patch.object(target=Path, attribute="read_text", return_value='[{"dummy": "dummy"}]')
+    def test_get_ty_results_failing(self, mock_read_text: MagicMock) -> None:
         assert self.badge_generator.get_ty_results() == ("Failing", colors.Color.RED)
+        mock_read_text.assert_called_once_with(encoding="utf-8")
