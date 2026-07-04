@@ -3,7 +3,7 @@
 import argparse
 import logging
 from datetime import UTC, datetime
-from json import load
+from json import load, loads
 from pathlib import Path
 
 from anybadge import Badge, colors
@@ -11,7 +11,7 @@ from defusedxml.ElementTree import parse
 
 from common_py.logger import get_logger
 
-COVERAGE_THRESHOLDS = {
+COVERAGE_THRESHOLDS: dict[int | float, str] = {
     50: colors.Color.RED.value,
     60: colors.Color.ORANGE.value,
     75: colors.Color.YELLOW.value,
@@ -184,9 +184,18 @@ class BadgeGenerator:
             err_msg = "Ty report path not provided."
             raise AttributeError(err_msg)
 
-        if self.ty_report_path.stat().st_size == 0:
+        content = self.ty_report_path.read_text(encoding="utf-8").strip()
+
+        # Required for older versions of ty which writes an empty file on success
+        if content == "":
             return "Passing", colors.Color.GREEN
 
+        # Newer versions of ty write an empty list on success
+        content = loads(s=content)
+        if not content:
+            return "Passing", colors.Color.GREEN
+
+        # On failure, ty writes a list of the detected errors to the file
         return "Failing", colors.Color.RED
 
 
