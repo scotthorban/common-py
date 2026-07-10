@@ -1,0 +1,76 @@
+# Enforce Unix (LF) line endings for all text files.
+# This ensures consistent behaviour across Linux and Windows (WSL) environments.
+
+# Default: apply LF to any file Git detects as text
+* text=auto eol=lf
+
+# --- Python ---
+*.py    text eol=lf
+*.pyi   text eol=lf
+*.pyw   text eol=lf
+
+# --- Configuration / project metadata ---
+*.toml  text eol=lf
+*.cfg   text eol=lf
+*.ini   text eol=lf
+*.env   text eol=lf
+
+# --- Data serialisation ---
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.xml   text eol=lf
+*.csv   text eol=lf
+
+# --- Markup / documentation ---
+*.md        text eol=lf
+*.rst       text eol=lf
+*.txt       text eol=lf
+*.html      text eol=lf
+*.htm       text eol=lf
+*.css       text eol=lf
+*.scss      text eol=lf
+*.sass      text eol=lf
+
+# --- Shell / scripts ---
+*.sh        text eol=lf
+*.bash      text eol=lf
+Makefile    text eol=lf
+Dockerfile  text eol=lf
+*.dockerfile text eol=lf
+
+# --- Web / JavaScript (if added in future) ---
+*.js    text eol=lf
+*.ts    text eol=lf
+*.jsx   text eol=lf
+*.tsx   text eol=lf
+
+# --- Git / dotfiles ---
+.gitattributes  text eol=lf
+.gitignore      text eol=lf
+.editorconfig   text eol=lf
+*.baseline.json text eol=lf
+
+# --- Lock files ---
+*.lock  text eol=lf
+uv.lock text eol=lf
+
+# --- Binary files (do not modify line endings) ---
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   binary
+*.webp  binary
+*.pdf   binary
+*.zip   binary
+*.tar   binary
+*.gz    binary
+*.whl   binary
+*.pyc   binary
+*.pyd   binary
+*.so    binary
+*.db    binary
+*.sqlite binary
+*.coverage binary
