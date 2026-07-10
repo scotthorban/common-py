@@ -5,6 +5,20 @@ All changes to this project will be documented in this file.
 This format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [semantic versioning](https://semver.org/).
 
+## 0.5.2
+
+- [#19](https://github.com/scotthorban/common-py/issues/19) - Add `AGENTS.md` at the repository root following the ASDLC
+  open standard, documenting mission, toolchain registry, and judgment boundaries for AI coding agents.
+- [#19](https://github.com/scotthorban/common-py/issues/19) - Add `.agents/summary/` directory with `product.md`,
+  `tech.md`, and `structure.md` steering files to minimise token drift across agent sessions.
+- [#19](https://github.com/scotthorban/common-py/issues/19) - Add `.agents/skills/` directory containing `code-summary`
+  and `prepare-for-pr` reusable agent skill definitions.
+- [#19](https://github.com/scotthorban/common-py/issues/19) - Add `.gitattributes` enforcing LF line-endings across all
+  text file types for consistent cross-platform behaviour.
+- [#19](https://github.com/scotthorban/common-py/issues/19) - Upgrade `ruff` pre-commit hook from `v0.12.8` to
+  `v0.15.0`.
+- [#19](https://github.com/scotthorban/common-py/issues/19) - Fix minor wording in `.github/pull_request_template.md`.
+
 ## 0.5.1
 
 - [#17](https://github.com/scotthorban/common-py/issues/17) - Upgrade ruff and ty versions & fix any new issues.
