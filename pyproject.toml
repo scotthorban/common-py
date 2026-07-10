@@ -1,6 +1,6 @@
 [project]
 name = "common_py"
-version = "0.5.1"
+version = "0.5.2"
 description = "A library of common, generic python modules designed to be used in other projects."
 readme = "README.md"
 requires-python = ">=3.11,<4"
@@ -24,7 +24,7 @@ packages = ["common_py"]
 dev = [
     "detect-secrets>=1.5.0",
     "freezegun>=1.5.5",
-    "pre-commit>=4.2.0",
+    "prek>=0.4.8",
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "ruff>=0.15.0",
@@ -72,7 +72,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.taskipy.tasks]
-install-hooks = { cmd = "pre-commit install --hook-type pre-commit --hook-type commit-msg", help = "Install all pre-commit hooks stored in .git-hooks" }
+install-hooks = { cmd = "prek install --hook-type pre-commit --hook-type commit-msg", help = "Install all pre-commit hooks stored in .git-hooks" }
 
 detect-secrets-scan = { cmd = "detect-secrets scan --baseline .secrets.baseline.json", help = """Updates the .secrets.baseline.json file with any newly detected secrets"""}
 audit-secrets = { cmd = "detect-secrets audit .secrets.baseline.json", help = """Runs a command line tool to allow the user to manually flag detected secrets as false positives"""}
